@@ -1,0 +1,76 @@
+import json
+
+class InventoryManager:
+    def __init__(self, filename='inventory.json'):
+        self.filename = filename
+        self.inventory = self.load_inventory()
+
+    def load_inventory(self):
+        try:
+            with open(self.filename, 'r') as file:
+                return json.load(file)
+        except (FileNotFoundError, json.JSONDecodeError):
+            return []
+
+    def save_inventory(self):
+        with open(self.filename, 'w') as file:
+            json.dump(self.inventory, file, indent=4)
+
+    def add_product(self, product):
+        self.inventory.append(product)
+        self.save_inventory()
+        print(f"Product {product['name']} added successfully.")
+
+    def update_stock(self, product_name, quantity):
+        for product in self.inventory:
+            if product['name'] == product_name:
+                product['stock'] += quantity
+                self.save_inventory()
+                print(f"Stock updated for {product_name}.")
+                return
+        print("Product not found.")
+
+    def list_inventory(self):
+        for product in self.inventory:
+            print(f"{product['name']} - Price: {product['price']} - Stock: {product['stock']}")
+
+    def find_product(self, product_name):
+        for product in self.inventory:
+            if product['name'] == product_name:
+                print(f"Found: {product['name']} - Price: {product['price']} - Stock: {product['stock']}")
+                return
+        print("Product not found.")
+
+def main():
+    manager = InventoryManager()
+
+    while True:
+        print("\n1: Add Product")
+        print("2: Update Stock")
+        print("3: List Inventory")
+        print("4: Find Product")
+        print("5: Exit")
+        choice = input("Enter your choice: ")
+
+        if choice == "1":
+            name = input("Enter product name: ")
+            price = float(input("Enter product price: "))
+            stock = int(input("Enter initial stock: "))
+            manager.add_product({'name': name, 'price': price, 'stock': stock})
+        elif choice == "2":
+            name = input("Enter product name to update: ")
+            quantity = int(input("Enter quantity to add/remove (use negative numbers to remove): "))
+            manager.update_stock(name, quantity)
+        elif choice == "3":
+            manager.list_inventory()
+        elif choice == "4":
+            name = input("Enter product name to find: ")
+            manager.find_product(name)
+        elif choice == "5":
+            print("Exiting Inventory Manager.")
+            break
+        else:
+            print("Invalid choice. Please enter a number between 1 and 5.")
+
+if __name__ == "__main__":
+    main()
